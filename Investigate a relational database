@@ -1,0 +1,86 @@
+#This projet is part of the Udacity's Programming for data science with Python Nano degree projects, and it was done by me in 2019.
+
+/* Query1- Query used for first insight */
+SELECT co.country_id, co.country, COUNT(cu.customer_id) AS numberOfCustomers 
+FROM address a
+JOIN customer cu
+ON   cu.address_id = a.address_id 
+JOIN city c
+ON   a.city_id = c.city_id
+JOIN country co
+ON   c.country_id = co.country_id
+GROUP BY 1,2
+ORDER BY 3 DESC
+LIMIT 8;
+
+/* Query2- Query used for second insight */
+
+SELECT  *
+FROM (SELECT a.actor_id, 
+   a.first_name || ' ' || a.last_name AS full_name, COUNT(rental_id) AS numberOfRentals, 
+       CASE WHEN COUNT(rental_id) >600 
+            THEN 'Most popular' 
+            WHEN COUNT(rental_id) <600 AND                          COUNT(rental_id) >300 
+            THEN 'Popular'
+            ELSE 'Normal'
+            END AS popularity_level  
+      FROM actor a
+      JOIN film_actor fa
+      ON   fa.actor_id = a.actor_id
+      JOIN film f
+      ON   fa.film_id = f.film_id
+      JOIN inventory i
+      ON   i.film_id = f.film_id
+      JOIN rental r 
+ON   r.inventory_id = i.inventory_id
+      GROUP BY 1
+ORDER BY 3 DESC
+
+)sub
+LIMIT 5;
+
+
+/* Query3- Query used for third insight */
+
+
+
+SELECT sub.category_id, sub.name, 
+       SUM(sub.amount) AS total_profit
+       ,AVG(sub.amount) AS average_payment_times
+       
+FROM( SELECT c.category_id,c.name, p.amount
+      FROM film f
+      JOIN film_category fc
+      ON   fc.film_id = f.film_id
+      JOIN category c
+      ON   c.category_id = fc.category_id
+      JOIN inventory i
+      ON   i.film_id = f.film_id
+      JOIN rental r
+      ON   r.inventory_id = i.inventory_id
+      JOIN payment p
+      ON   p.rental_id = r.rental_id
+                                            )sub
+GROUP BY 1,2
+ORDER BY 3 DESC ;
+
+/* Query4- Query used for fourth insight */
+
+SELECT  sub.payment_id,sub.amount, SUM (amount) over (PARTITION BY customer_id ORDER BY payment_id) AS total_payment, sub.name AS movie_category
+FROM (SELECT c.name, p.payment_id,
+              cu.customer_id, p.amount 
+      FROM customer cu
+      JOIN rental r
+      ON cu.customer_id = r.customer_id
+      JOIN inventory i
+      ON i.inventory_id = r.inventory_id
+      JOIN film f
+      ON   f.film_id = i.film_id
+      JOIN film_category fc
+      ON fc.film_id = f.film_id
+      JOIN category c
+      ON fc.category_id = c.category_id
+      JOIN payment p
+      ON p.rental_id = r.rental_id    ) sub
+WHERE sub.customer_id = 1;
+
