@@ -1,4 +1,4 @@
-#This projet is part of the Udacity's Programming for data science with Python Nano degree projects, and it was done by me in 2019.
+#This projet is part of the Udacity's Programming for data science with Python Nano degree program, and it was done by me in 2021.
 
 /* Query1- Query used for first insight */
 SELECT co.country_id, co.country, COUNT(cu.customer_id) AS numberOfCustomers 
